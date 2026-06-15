@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://db23ykkvauhdp"]
+
+[ext_resource type="Texture2D" uid="uid://b6toqqioe5n31" path="res://assets/sprites/slime_base.png" id="1_ewbfh"]
+[ext_resource type="PackedScene" uid="uid://c4uifet7echrt" path="res://components/walk_component.tscn" id="2_kpqmg"]
+[ext_resource type="PackedScene" uid="uid://b32cdtws0uk0p" path="res://state_machine/state_machine.tscn" id="3_dt443"]
+[ext_resource type="PackedScene" uid="uid://c8o6qi8wf7yj2" path="res://entities/enemy/states/chase_player_state.tscn" id="4_4wwj3"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ah07m"]
+radius = 7.0
+height = 28.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ah07m"]
+atlas = ExtResource("1_ewbfh")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5b8j3"]
+atlas = ExtResource("1_ewbfh")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_54wd2"]
+atlas = ExtResource("1_ewbfh")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e3c4e"]
+atlas = ExtResource("1_ewbfh")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wkh6r"]
+atlas = ExtResource("1_ewbfh")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o8q38"]
+atlas = ExtResource("1_ewbfh")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yjk6j"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ah07m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5b8j3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_54wd2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e3c4e")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wkh6r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o8q38")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 12.0
+}]
+
+[node name="Enemy" type="CharacterBody2D" unique_id=2020941600]
+z_index = 1
+y_sort_enabled = true
+collision_layer = 0
+motion_mode = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1976437281]
+rotation = 1.5707964
+shape = SubResource("CapsuleShape2D_ah07m")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1637195677]
+y_sort_enabled = true
+position = Vector2(0, 8)
+sprite_frames = SubResource("SpriteFrames_yjk6j")
+autoplay = "default"
+offset = Vector2(0, -16)
+
+[node name="WalkComponent" parent="." unique_id=1458715250 node_paths=PackedStringArray("character_body") instance=ExtResource("2_kpqmg")]
+character_body = NodePath("..")
+base_speed = 30.0
+
+[node name="StateMachine" parent="." unique_id=1547188868 node_paths=PackedStringArray("initial_state") instance=ExtResource("3_dt443")]
+initial_state = NodePath("ChasePlayerState")
+
+[node name="ChasePlayerState" parent="StateMachine" unique_id=512730417 node_paths=PackedStringArray("character_body", "walk_component") instance=ExtResource("4_4wwj3")]
+character_body = NodePath("../..")
+walk_component = NodePath("../../WalkComponent")

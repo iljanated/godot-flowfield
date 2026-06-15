@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://c8o6qi8wf7yj2"]
+
+[ext_resource type="Script" uid="uid://dfiemami2kt07" path="res://entities/enemy/states/chase_player_state.gd" id="1_fow87"]
+
+[node name="ChasePlayerState" type="Node" unique_id=512730417]
+script = ExtResource("1_fow87")
+metadata/_custom_type_script = "uid://cg6yrdn677qep"

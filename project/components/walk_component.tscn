@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c4uifet7echrt"]
+
+[ext_resource type="Script" uid="uid://bkytar1nya50r" path="res://components/walk_component.gd" id="1_xxcib"]
+
+[node name="WalkComponent" type="Node2D" unique_id=1458715250]
+script = ExtResource("1_xxcib")

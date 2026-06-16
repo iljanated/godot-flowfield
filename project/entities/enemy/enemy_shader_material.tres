@@ -1,0 +1,6 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dec3r3bvfb344"]
+
+[ext_resource type="Shader" uid="uid://l2t3x2advjx2" path="res://entities/enemy/enemy_shader.tres" id="1_4rkri"]
+
+[resource]
+shader = ExtResource("1_4rkri")

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dstmbg5ou4et2"]
+
+[ext_resource type="Script" uid="uid://rloq6mwo5ton" path="res://world/flow_field.gd" id="1_katji"]
+
+[node name="FlowField" type="IGFlowField" unique_id=1133311182]
+script = ExtResource("1_katji")

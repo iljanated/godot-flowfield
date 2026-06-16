@@ -7,10 +7,8 @@ var map_to_world: Transform2D = Transform2D.IDENTITY
 var _line_points: PackedVector2Array = []
 var _line_colors: PackedColorArray = []
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
-
+	pass
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -38,9 +36,9 @@ func _draw() -> void:
 			var gradient = get_gradient(Vector2i(x, y))
 			var half_dir : Vector2 = gradient * 0.5
 			
-			var start = map_to_world * map_start
-			var mid : Vector2 = map_to_world * (map_start + half_dir)
-			var segment_end : Vector2 = map_to_world * (map_start + half_dir * 1.4) # 0.5 * 1.4 = 0.7
+			var start = map_start
+			var mid : Vector2 = map_start + half_dir
+			var segment_end : Vector2 = map_start + half_dir * 1.4
 			
 			# Blauw segment
 			_line_points[idx] = start
@@ -53,5 +51,6 @@ func _draw() -> void:
 			_line_colors[idx * 0.5 + 1] = red_color
 			
 			idx += 4
+	draw_set_transform_matrix(map_to_world)
 	draw_multiline_colors(_line_points, _line_colors)
-			
+	draw_set_transform_matrix(Transform2D.IDENTITY)

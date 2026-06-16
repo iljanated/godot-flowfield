@@ -1,0 +1,31 @@
+[gd_scene format=3 uid="uid://s7hwjeqia524"]
+
+[ext_resource type="SpriteFrames" uid="uid://b4raq23idlsfv" path="res://assets/sprites/floor_trap_sprite_frames.tres" id="1_8ldrs"]
+[ext_resource type="Script" uid="uid://ci6ky4jy0tvn3" path="res://entities/floor_trap/floor_trap.gd" id="2_sf11t"]
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_stlcs"]
+points = PackedVector2Array(-32, 0, 0, -16, 32, 0, 0, 16)
+
+[node name="FloorTrap" type="AnimatedSprite2D" unique_id=462524959]
+z_index = 1
+y_sort_enabled = true
+sprite_frames = ExtResource("1_8ldrs")
+autoplay = "default"
+frame_progress = 0.054297477
+offset = Vector2(0, -16)
+script = ExtResource("2_sf11t")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=64260187]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1412973672]
+shape = SubResource("ConvexPolygonShape2D_stlcs")
+
+[node name="Timer" type="Timer" parent="." unique_id=1735525855]
+wait_time = 0.3
+autostart = true
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="body_exited" from="Area2D" to="." method="_on_area_2d_body_exited"]
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

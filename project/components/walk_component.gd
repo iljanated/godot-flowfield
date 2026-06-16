@@ -1,7 +1,7 @@
 extends Node2D
 class_name WalkComponent
 
-@export var character_body : CharacterBody2D
+@onready var character_body : CharacterBody2D = $".."
 @export var base_speed : float = 70.0
 @export var sprint_multiplier : float = 2.0
 

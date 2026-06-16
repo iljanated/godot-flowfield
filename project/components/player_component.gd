@@ -1,7 +1,7 @@
 extends Node2D
 class_name PlayerComponent
 
-@export var walk_component : WalkComponent
+@onready var walk_component : WalkComponent = $"../WalkComponent"
 
 func _physics_process(delta: float) -> void:
 	var input_direction = Vector2(Input.get_axis("move_left", "move_right"), Input.get_axis("move_up", "move_down"))

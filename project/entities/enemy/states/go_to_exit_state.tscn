@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://6ws6oueogdoj"]
+
+[ext_resource type="Script" uid="uid://qojsn5la0258" path="res://entities/enemy/states/go_to_exit_state.gd.gd" id="1_siwtk"]
+
+[node name="GoToExitState" type="Node" unique_id=77256525]
+script = ExtResource("1_siwtk")
+metadata/_custom_type_script = "uid://qojsn5la0258"

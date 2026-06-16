@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://bp6j7bkpbptx4"]
+
+[ext_resource type="Script" uid="uid://cety470p22n0i" path="res://world/exit.gd" id="1_jf3u7"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_jum3j"]
+radius = 32.0
+
+[node name="Exit" type="Area2D" unique_id=1224797299]
+z_index = 1000
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_jf3u7")
+metadata/_custom_type_script = "uid://cety470p22n0i"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=368536507]
+shape = SubResource("CircleShape2D_jum3j")
+
+[connection signal="body_entered" from="." to="." method="_on_area_2d_body_entered"]

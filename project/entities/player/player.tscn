@@ -59,7 +59,7 @@ animations = [{
 }]
 
 [node name="Player" type="CharacterBody2D" unique_id=2020941600]
-z_index = 1
+z_index = 2
 y_sort_enabled = true
 collision_layer = 0
 motion_mode = 1

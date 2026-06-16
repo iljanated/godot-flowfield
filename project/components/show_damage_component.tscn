@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://b8hmt668cr5tf"]
+
+[ext_resource type="Script" uid="uid://c8rwdcowsjx7w" path="res://components/show_damage_component.gd" id="1_qphxq"]
+
+[node name="ShowDamageComponent" type="Node2D" unique_id=1487771673]
+script = ExtResource("1_qphxq")
+metadata/_custom_type_script = "uid://c8rwdcowsjx7w"
+
+[node name="Timer" type="Timer" parent="." unique_id=23977018]
+one_shot = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

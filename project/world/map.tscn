@@ -1,6 +1,17 @@
 [gd_scene format=3 uid="uid://b6qebbso12nig"]
 
 [ext_resource type="Script" uid="uid://bbw88m3sjl4va" path="res://world/map.gd" id="1_lx1ux"]
+[ext_resource type="PackedScene" uid="uid://dstmbg5ou4et2" path="res://world/flow_field.tscn" id="2_uvqf1"]
 
-[node name="Map" type="Node2D" unique_id=1006718089]
+[node name="Map" type="Node2D" unique_id=1006718089 node_paths=PackedStringArray("player", "player_walk_flowfield", "exit0_walk_flowfield", "exit1_walk_flowfield")]
 script = ExtResource("1_lx1ux")
+player = NodePath("PlayerWalkFlowField")
+player_walk_flowfield = NodePath("PlayerWalkFlowField")
+exit0_walk_flowfield = NodePath("Exit0WalkFlowField")
+exit1_walk_flowfield = NodePath("Exit1WalkFlowField")
+
+[node name="PlayerWalkFlowField" parent="." unique_id=1133311182 instance=ExtResource("2_uvqf1")]
+
+[node name="Exit0WalkFlowField" parent="." unique_id=383930266 instance=ExtResource("2_uvqf1")]
+
+[node name="Exit1WalkFlowField" parent="." unique_id=1441042419 instance=ExtResource("2_uvqf1")]

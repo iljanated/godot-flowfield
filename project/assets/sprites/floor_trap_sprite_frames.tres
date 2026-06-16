@@ -1,0 +1,25 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://b4raq23idlsfv"]
+
+[ext_resource type="Texture2D" uid="uid://b8bspo864ev50" path="res://assets/sprites/floor_trap.png" id="1_mj8hs"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4mfrh"]
+atlas = ExtResource("1_mj8hs")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6g0aa"]
+atlas = ExtResource("1_mj8hs")
+region = Rect2(128, 0, 128, 128)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4mfrh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6g0aa")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 3.0
+}]

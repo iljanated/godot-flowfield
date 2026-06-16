@@ -40,13 +40,13 @@ void IGCostField::fill(float value)
 	std::fill(costs.begin(), costs.end(), value);
 }
 
-void IGCostField::apply_falloff(float falloff, float falloff_start)
+void IGCostField::apply_falloff(float falloff, float falloff_start, float max_value)
 {
 	// clear all previous falloffs
 
 	for (size_t i = 0; i < costs.size(); ++i)
 	{
-		if (costs[i] < INFINITY)
+		if (costs[i] < max_value)
 		{
 			costs[i] = 0.0f;
 		}
@@ -74,7 +74,7 @@ void IGCostField::apply_falloff(float falloff, float falloff_start)
 			int32_t current_idx = row_offset + x;
 			float current_val = costs[current_idx];
 
-			if (current_val >= INFINITY)
+			if (current_val >= max_value)
 				continue;
 
 			float max_val = current_val;
@@ -112,7 +112,7 @@ void IGCostField::apply_falloff(float falloff, float falloff_start)
 			int32_t current_idx = row_offset + x;
 			float current_val = costs[current_idx];
 
-			if (current_val >= INFINITY)
+			if (current_val >= max_value)
 				continue;
 
 			float max_val = current_val;
@@ -140,7 +140,7 @@ void IGCostField::apply_falloff(float falloff, float falloff_start)
 			costs[current_idx] = max_val;
 		}
 	}
-	UtilityFunctions::print("Falloff applied with falloff_Start: " + godot::String::num(falloff_start) + ", falloff: " + godot::String::num(falloff));
+	//UtilityFunctions::print("Falloff applied with falloff_Start: " + godot::String::num(falloff_start) + ", falloff: " + godot::String::num(falloff));
 }
 
 void IGFlowField::_bind_methods()
@@ -243,140 +243,168 @@ PackedFloat32Array IGFlowField::get_result_field() const
 
 void IGFlowField::calculate_field(Array cost_fields, PackedInt32Array target_indices)
 {
-	bool expected = false;
-	if (!is_calculating.compare_exchange_strong(expected, true))
-	{
-		UtilityFunctions::push_warning("Calculation ignored: MapProcessor is already calculating a field.");
-		return;
-	}
+    bool expected = false;
+    if (!is_calculating.compare_exchange_strong(expected, true))
+    {
+        UtilityFunctions::push_warning("Calculation ignored: MapProcessor is already calculating a field.");
+        return;
+    }
 
-	size_t total_cells = static_cast<size_t>(map_size.x * map_size.y);
-	if (total_cells == 0)
-	{
-		UtilityFunctions::push_warning("Map size is not set. Cannot calculate field.");
-		is_calculating.store(false);
-		return;
-	}
+    size_t total_cells = static_cast<size_t>(map_size.x * map_size.y);
+    if (total_cells == 0)
+    {
+        UtilityFunctions::push_warning("Map size is not set. Cannot calculate field.");
+        is_calculating.store(false);
+        return;
+    }
 
-	// 1. Vul de actieve rekenbuffer met 'Infinity'
-	std::fill(field_buffer.begin(), field_buffer.end(), INFINITY);
+    // 1. REUSE CAPACITY: Resize vector without dropping underlying allocated block
+    cell_states.resize(total_cells);
+    std::fill(cell_states.begin(), cell_states.end(), FMMState::FAR);
+    std::fill(field_buffer.begin(), field_buffer.end(), INFINITY);
 
-	const int32_t *targets_read = target_indices.ptr();
-	int target_count = target_indices.size();
+    // Clear contents but retain the heap-allocated storage capacity
+    open_set.clear(); 
+    cached_costs.clear();
 
-	// Snelle hash-set voor O(1) lookups
-	std::unordered_set<int32_t> target_set;
-	target_set.reserve(target_count);
+    const int32_t *targets_read = target_indices.ptr();
+    int target_count = target_indices.size();
 
-	// 2. Zet targets op 0.0 in de buffer
-	for (int i = 0; i < target_count; ++i)
-	{
-		int32_t idx = targets_read[i];
-		if (idx >= 0 && idx < static_cast<int32_t>(total_cells))
-		{
-			field_buffer[idx] = 0.0f;
-			target_set.insert(idx);
-		}
-	}
+    // 2. Initialize targets as Accepted (0.0)
+    for (int i = 0; i < target_count; ++i)
+    {
+        int32_t idx = targets_read[i];
+        if (idx >= 0 && idx < static_cast<int32_t>(total_cells))
+        {
+            field_buffer[idx] = 0.0f;
+            cell_states[idx] = FMMState::ACCEPTED;
+        }
+    }
 
-	// Cache CostFields lokaal om pointer-chasing in de geneste lussen te voorkomen
-	struct CachedCostField
-	{
-		const float *costs_ptr;
-		float multiplier;
-		bool is_boolean;
-	};
+    // Cache cost layers efficiently inside class property
+    cached_costs.reserve(cost_fields.size());
+    for (int i = 0; i < cost_fields.size(); ++i)
+    {
+        Ref<IGCostField> cf = cost_fields[i];
+        if (cf.is_valid())
+        {
+            cached_costs.push_back(cf->costs.ptr());
+        }
+    }
 
-	std::vector<const float *> cached_costs;
-	cached_costs.reserve(cost_fields.size());
-	for (int i = 0; i < cost_fields.size(); ++i)
-	{
-		Ref<IGCostField> cf = cost_fields[i];
-		if (cf.is_valid())
-		{
-			cached_costs.push_back(cf->costs.ptr());
-		}
-	}
+    // Core lookup lambdas
+    auto get_slowness = [&](int idx) -> float {
+        float slowness = 1.0f;
+        for (const auto &costs_ptr : cached_costs) {
+            slowness += costs_ptr[idx];
+        }
+        return slowness;
+    };
 
-	// 3. Multi-directionele sweeps definiëren
-	struct Sweep
-	{
-		int x_start, x_end, x_step;
-		int y_start, y_end, y_step;
-	};
+    auto calculate_eikonal_value = [&](int idx) -> float {
+        int x = idx % map_size.x;
+        int y = idx / map_size.x;
 
-	std::vector<Sweep> sweeps = {
-		{0, map_size.x, 1, 0, map_size.y, 1},
-		{0, map_size.x, 1, map_size.y - 1, -1, -1},
-		{map_size.x - 1, -1, -1, 0, map_size.y, 1},
-		{map_size.x - 1, -1, -1, map_size.y - 1, -1, -1}};
+        auto get_accepted_val = [&](int nx, int ny) -> float {
+            if (nx >= 0 && nx < map_size.x && ny >= 0 && ny < map_size.y) {
+                int n_idx = ny * map_size.x + nx;
+                if (cell_states[n_idx] == FMMState::ACCEPTED) {
+                    return field_buffer[n_idx];
+                }
+            }
+            return INFINITY;
+        };
 
-	// 4. Rekenlussen uitvoeren op 'field_buffer'
-	for (int iter = 0; iter < iterations; ++iter)
-	{
-		for (const auto &sweep : sweeps)
-		{
+        float u_xmin = get_accepted_val(x - 1, y);
+        float u_xmax = get_accepted_val(x + 1, y);
+        float u_ymin = get_accepted_val(x, y - 1);
+        float u_ymax = get_accepted_val(x, y + 1);
 
-			for (int x = sweep.x_start; sweep.x_step > 0 ? x < sweep.x_end : x > sweep.x_end; x += sweep.x_step)
-			{
-				for (int y = sweep.y_start; sweep.y_step > 0 ? y < sweep.y_end : y > sweep.y_end; y += sweep.y_step)
-				{
+        float u_x = std::min(u_xmin, u_xmax);
+        float u_y = std::min(u_ymin, u_ymax);
 
-					int idx = y * map_size.x + x;
+        float u_min = std::min(u_x, u_y);
+        float u_max = std::max(u_x, u_y);
 
-					if (target_set.find(idx) != target_set.end())
-					{
-						continue;
-					}
+        if (u_min == INFINITY) return INFINITY;
 
-					float slowness = 1.0f;
+        float f_inv = get_slowness(idx);
 
-					for (const auto &costs_ptr : cached_costs)
-					{
-						slowness += costs_ptr[idx];
-					}
+        if (u_max == INFINITY || (u_max - u_min) >= f_inv) {
+            return u_min + f_inv;
+        }
+        
+        float diff = u_x - u_y;
+        return 0.5f * ((u_x + u_y) + std::sqrt(2.0f * f_inv * f_inv - diff * diff));
+    };
 
-					// Get values of 4-connected neighbors, default to INFINITY if out of bounds
-					float u_xmin = (x > 0) ? field_buffer[idx - 1] : INFINITY;
-					float u_xmax = (x < map_size.x - 1) ? field_buffer[idx + 1] : INFINITY;
-					float u_ymin = (y > 0) ? field_buffer[idx - map_size.x] : INFINITY;
-					float u_ymax = (y < map_size.y - 1) ? field_buffer[idx + map_size.x] : INFINITY;
+    // 3. Seed open set with initial target neighbors
+    for (int i = 0; i < target_count; ++i)
+    {
+        int32_t idx = targets_read[i];
+        if (idx < 0 || idx >= static_cast<int32_t>(total_cells)) continue;
 
-					// Choose the minimum neighbor value along each axis
-					float u_x = std::min(u_xmin, u_xmax);
-					float u_y = std::min(u_ymin, u_ymax);
+        int x = idx % map_size.x;
+        int y = idx / map_size.x;
 
-					float u_min = std::min(u_x, u_y);
-					float u_max = std::max(u_x, u_y);
+        int neighbors[4][2] = {{x - 1, y}, {x + 1, y}, {x, y - 1}, {x, y + 1}};
+        for (const auto& n : neighbors) {
+            if (n[0] >= 0 && n[0] < map_size.x && n[1] >= 0 && n[1] < map_size.y) {
+                int n_idx = n[1] * map_size.x + n[0];
+                if (cell_states[n_idx] == FMMState::FAR) {
+                    float new_val = calculate_eikonal_value(n_idx);
+                    if (new_val < INFINITY) {
+                        field_buffer[n_idx] = new_val;
+                        cell_states[n_idx] = FMMState::CONSIDERED;
+                        open_set.push_back({n_idx, new_val});
+                    }
+                }
+            }
+        }
+    }
 
-					// f_inv represents the cost to travel across this specific cell
-					// Derived from: slowness * grid_spacing (h)
-					float f_inv = slowness;
-					float u_new = INFINITY;
+    // Establish the initial heap state
+    std::make_heap(open_set.begin(), open_set.end(), fmm_compare);
 
-					if (u_max == INFINITY || (u_max - u_min) >= f_inv)
-					{
-						// 1D Update: Wavefront travels strictly along one dominant axis
-						u_new = u_min + f_inv;
-					}
-					else
-					{
-						// 2D Update: Wavefront crosses the cell diagonally
-						float diff = u_x - u_y;
-						u_new = 0.5f * ((u_x + u_y) + std::sqrt(2.0f * f_inv * f_inv - diff * diff));
-					}
+    // 4. Main Fast Marching Loop
+    while (!open_set.empty())
+    {
+        // pop_heap moves the lowest-valued item to the back of the vector in O(log N)
+        std::pop_heap(open_set.begin(), open_set.end(), fmm_compare);
+        FMMElement curr = open_set.back();
+        open_set.pop_back();
 
-					// Maintain the viscosity solution (keep the minimum arrival time)
-					if (u_new < field_buffer[idx])
-					{
-						field_buffer[idx] = u_new;
-					}
-				}
-			}
-		}
-	}
+        // Skip dirty outdated records
+        if (cell_states[curr.idx] == FMMState::ACCEPTED) continue;
 
-	std::swap(result_field, field_buffer);
-	is_calculating.store(false);
-	emit_signal("calculation_done");
+        cell_states[curr.idx] = FMMState::ACCEPTED;
+
+        int cx = curr.idx % map_size.x;
+        int cy = curr.idx / map_size.x;
+
+        int neighbors[4][2] = {{cx - 1, cy}, {cx + 1, cy}, {cx, cy - 1}, {cx, cy + 1}};
+        for (const auto& n : neighbors) {
+            if (n[0] >= 0 && n[0] < map_size.x && n[1] >= 0 && n[1] < map_size.y) {
+                int n_idx = n[1] * map_size.x + n[0];
+
+                if (cell_states[n_idx] != FMMState::ACCEPTED) {
+                    float calculated_val = calculate_eikonal_value(n_idx);
+
+                    if (calculated_val < field_buffer[n_idx]) {
+                        field_buffer[n_idx] = calculated_val;
+                        cell_states[n_idx] = FMMState::CONSIDERED;
+                        
+                        // Add to heap dynamically
+                        open_set.push_back({n_idx, calculated_val});
+                        std::push_heap(open_set.begin(), open_set.end(), fmm_compare);
+                    }
+                }
+            }
+        }
+    }
+
+    // 5. Final Swap and Dispatch
+    std::swap(result_field, field_buffer);
+    is_calculating.store(false);
+    emit_signal("calculation_done");
 }

@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://baeu8j7bmcbgx"]
+
+[ext_resource type="Script" uid="uid://bj8lp42n7qetx" path="res://world/scenario.gd" id="1_j380n"]
+
+[node name="Scenario" type="Node2D" unique_id=311227077 node_paths=PackedStringArray("timer")]
+script = ExtResource("1_j380n")
+timer = NodePath("Timer")
+metadata/_custom_type_script = "uid://bj8lp42n7qetx"
+
+[node name="Timer" type="Timer" parent="." unique_id=1346420177]

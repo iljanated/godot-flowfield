@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://blpuntthujf3x"]
+
+[ext_resource type="Script" uid="uid://sapkf5q855pd" path="res://components/weapon_components/weapon_manager_component.gd" id="1_kaiqt"]
+[ext_resource type="PackedScene" uid="uid://8mt8i77psane" path="res://weapons/gun.tscn" id="2_1j5wl"]
+
+[node name="WeaponManagerComponent" type="Node2D" unique_id=234289039]
+script = ExtResource("1_kaiqt")
+metadata/_custom_type_script = "uid://sapkf5q855pd"
+
+[node name="Gun" parent="." unique_id=737212821 instance=ExtResource("2_1j5wl")]

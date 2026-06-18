@@ -30,7 +30,6 @@ tile_map_data = PackedByteArray("AADs/+j/AAAAAAAAAADs/+n/AAAAAAAAAADs/+r/AAAAAAA
 tile_set = ExtResource("1_eus5j")
 
 [node name="Map" parent="." unique_id=1006718089 node_paths=PackedStringArray("player", "exit0", "exit1") instance=ExtResource("3_iss0w")]
-unique_name_in_owner = true
 visible = false
 z_index = 32
 y_sort_enabled = true
@@ -39,10 +38,10 @@ exit0 = NodePath("../Exit0")
 exit1 = NodePath("../Exit1")
 
 [node name="Player" parent="." unique_id=2020941600 instance=ExtResource("2_823pn")]
+position = Vector2(832, -144)
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=115800957]
 position = Vector2(0, 10)
-zoom = Vector2(0.5, 0.5)
 
 [node name="Exit0" parent="." unique_id=2031973126 instance=ExtResource("5_7d3si")]
 position = Vector2(-298, 80)

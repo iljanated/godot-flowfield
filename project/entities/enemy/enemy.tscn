@@ -16,10 +16,13 @@
 radius = 7.0
 height = 28.0
 
-[node name="Enemy" type="CharacterBody2D" unique_id=128159614]
+[sub_resource type="CircleShape2D" id="CircleShape2D_7vrfk"]
+radius = 15.132746
+
+[node name="Enemy" type="CharacterBody2D" unique_id=128159614 groups=["walkers"]]
 z_index = 2
 y_sort_enabled = true
-collision_layer = 2
+collision_layer = 0
 motion_mode = 1
 script = ExtResource("1_721x4")
 metadata/_custom_type_script = "uid://d1bfiir5te354"
@@ -53,5 +56,13 @@ initial_state = NodePath("GoToExitState")
 [node name="DamageComponent" parent="." unique_id=28474635 instance=ExtResource("10_a8fs5")]
 
 [node name="ShowDamageComponent" parent="." unique_id=1630434742 instance=ExtResource("11_7vrfk")]
+
+[node name="HitBox" type="Area2D" parent="." unique_id=214068172]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HitBox" unique_id=465501696]
+position = Vector2(0, -7)
+shape = SubResource("CircleShape2D_7vrfk")
 
 [connection signal="damage_taken" from="DamageComponent" to="ShowDamageComponent" method="_on_damage_component_damage_taken"]

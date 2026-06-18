@@ -12,9 +12,9 @@ func _ready():
 func _on_exit_reached():
 	spawn_component.despawn()
 
-func _on_spawned():
+func _on_spawned(spawn_component: SpawnComponent):
 	print("Enemy spawned.")
 
-func _on_despawned():
+func _on_despawned(spawn_component: SpawnComponent):
 	print("Enemy despawned.")
 	

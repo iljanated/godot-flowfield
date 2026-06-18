@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://cccsnonooa6fb"]
+
+[ext_resource type="Script" uid="uid://bqte8vh4q0guf" path="res://components/recoil_component.gd" id="1_378g1"]
+
+[node name="RecoilComponent" type="Node2D" unique_id=1109894149]
+script = ExtResource("1_378g1")
+metadata/_custom_type_script = "uid://bqte8vh4q0guf"

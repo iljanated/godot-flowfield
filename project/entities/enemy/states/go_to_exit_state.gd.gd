@@ -8,10 +8,8 @@ var exit_name : String = "exit0"
 var map : Map
 
 func enter():
-	print("Entering GoToExitState")
 	map = get_tree().root.get_node("Level/Map")
-	print("Map found: ", map != null)
-
+	
 func exit():
 	map = null
 

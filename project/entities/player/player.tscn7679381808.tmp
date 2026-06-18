@@ -5,7 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://mo8qbrr0ix82" path="res://components/player_component.tscn" id="3_ah07m"]
 [ext_resource type="PackedScene" uid="uid://blpuntthujf3x" path="res://components/weapon_components/weapon_manager_component.tscn" id="4_bls4j"]
 [ext_resource type="PackedScene" uid="uid://cccsnonooa6fb" path="res://components/recoil_component.tscn" id="5_fkugw"]
-[ext_resource type="PackedScene" uid="uid://xxj2o5sp4mhd" path="res://components/aim_component.tscn" id="6_8fjmc"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ah07m"]
 radius = 7.0
@@ -85,5 +84,3 @@ offset = Vector2(0, -16)
 [node name="WeaponManagerComponent" parent="." unique_id=1710931212 instance=ExtResource("4_bls4j")]
 
 [node name="RecoilComponent" parent="." unique_id=1109894149 instance=ExtResource("5_fkugw")]
-
-[node name="AimComponent" parent="." unique_id=831889761 instance=ExtResource("6_8fjmc")]

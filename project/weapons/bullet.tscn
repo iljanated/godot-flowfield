@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://b0i24er5kabrb"]
+
+[ext_resource type="Script" uid="uid://dwmrqy78umy87" path="res://weapons/bullet.gd" id="1_fc8e7"]
+[ext_resource type="Texture2D" uid="uid://b7mnkfgay08ir" path="res://assets/sprites/bullet.png" id="2_l3ktd"]
+[ext_resource type="PackedScene" uid="uid://cq6rmg6mh6cis" path="res://components/spawn_component.tscn" id="3_6j2x7"]
+
+[node name="Bullet" type="Node2D" unique_id=1434594867]
+z_index = 2
+y_sort_enabled = true
+script = ExtResource("1_fc8e7")
+metadata/_custom_type_script = "uid://dwmrqy78umy87"
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1652333546]
+texture = ExtResource("2_l3ktd")
+
+[node name="SpawnComponent" parent="." unique_id=1650902809 instance=ExtResource("3_6j2x7")]

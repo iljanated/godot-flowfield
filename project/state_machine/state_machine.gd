@@ -13,9 +13,7 @@ func _ready():
 			states[child.name.to_lower()] = child
 			child.transitioned.connect(_on_state_transitioned)
 
-	print("States found: ", states.keys())
 	if initial_state:
-		print("Initial state: ", initial_state.name)
 		initial_state.enter()
 		current_state = initial_state
 

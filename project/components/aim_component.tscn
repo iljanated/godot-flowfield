@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://xxj2o5sp4mhd"]
+
+[ext_resource type="Script" uid="uid://dfksb8o7lkdu1" path="res://components/aim_component.gd" id="1_utyv8"]
+
+[node name="AimComponent" type="Node2D" unique_id=831889761]
+script = ExtResource("1_utyv8")
+metadata/_custom_type_script = "uid://dfksb8o7lkdu1"

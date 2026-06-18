@@ -3,6 +3,5 @@ class_name DamageComponent
 
 signal damage_taken
 
-func on_damage_taken() -> void:
-	print("Damage taken!")
+func take_damage() -> void:
 	damage_taken.emit()

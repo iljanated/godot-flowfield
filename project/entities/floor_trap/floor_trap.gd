@@ -14,15 +14,15 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	pass
 
-func _on_area_2d_body_exited(body: Node2D) -> void:
-	var damage_component: DamageComponent = body.get_node_or_null("DamageComponent") as DamageComponent
+func _on_area_2d_area_exited(area: Node2D) -> void:
+	var damage_component: DamageComponent = area.get_parent().get_node_or_null("DamageComponent") as DamageComponent
 	if damage_component != null:
 		overlapping_damage_components.erase(damage_component)
 		if overlapping_damage_components.size() == 0:
 			timer.stop()
 
-func _on_area_2d_body_entered(body: Node2D) -> void:
-	var damage_component: DamageComponent = body.get_node_or_null("DamageComponent") as DamageComponent
+func _on_area_2d_area_entered(area: Node2D) -> void:
+	var damage_component: DamageComponent = area.get_parent().get_node_or_null("DamageComponent") as DamageComponent
 	if damage_component != null:
 		overlapping_damage_components.append(damage_component)
 		if overlapping_damage_components.size() == 1:
@@ -31,4 +31,4 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 func _on_timer_timeout() -> void:
 	if overlapping_damage_components.size() > 0:
 		for damage_component in overlapping_damage_components:
-			damage_component.on_damage_taken()
+			damage_component.take_damage()

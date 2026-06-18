@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://8mt8i77psane"]
+
+[ext_resource type="Script" uid="uid://cjnbdehh205wd" path="res://weapons/gun.gd" id="1_es75o"]
+[ext_resource type="Script" uid="uid://crr0wqg0hup45" path="res://components/weapon_components/ammo_component.gd" id="2_14xyu"]
+[ext_resource type="Script" uid="uid://cvd3nutphsr0s" path="res://components/weapon_components/fire_component.gd" id="3_tan0m"]
+
+[node name="Gun" type="Node2D" unique_id=507272291]
+script = ExtResource("1_es75o")
+metadata/_custom_type_script = "uid://cjnbdehh205wd"
+
+[node name="AmmoComponent" type="Node2D" parent="." unique_id=7864625]
+script = ExtResource("2_14xyu")
+metadata/_custom_type_script = "uid://crr0wqg0hup45"
+
+[node name="FireComponent" type="Node2D" parent="." unique_id=1735525319]
+script = ExtResource("3_tan0m")
+metadata/_custom_type_script = "uid://cvd3nutphsr0s"
